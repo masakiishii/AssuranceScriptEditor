@@ -194,7 +194,7 @@ class DScriptExporter extends Exporter {
         }
         else if(IsSolution(root)) {
             indent = EmitIndent(level);
-            stdout.print(indent + root.getString("Description").replace("\n", indent + "\n").replace("\r", "") + "\n");
+            stdout.print(indent + root.getString("Description").replace("\n", "\n" + indent).replace("\r", "") + "\n");
         }
         else if(IsContext(root)) {
             return;
