@@ -168,6 +168,10 @@ class DScriptExporter extends Exporter {
         return node.getString("NodeType") == "Evidence";
     }
 
+    boolean IsSolution(Json node) {
+        return node.getString("NodeType") == "Solution";
+    }
+
     void GenerateGoalCode(Json NodeList, int node_id, int level) {
         Json root = FindById(NodeList, node_id);
         Json children = root.get("Children");
@@ -187,6 +191,10 @@ class DScriptExporter extends Exporter {
         else if(IsStrategy(root)) {
             indent = EmitIndent(level);
             stdout.print(indent + "strategy " + root.getString("Description").replace("\n", "").replace("\r", "") + " {\n");
+        }
+        else if(IsSolution(root)) {
+            indent = EmitIndent(level);
+            stdout.print(indent + root.getString("Description").replace("\n", indent + "\n").replace("\r", "") + "\n");
         }
         else if(IsContext(root)) {
             return;
@@ -236,7 +244,11 @@ void main () {
     json.set("params", param);
 
     HttpClient client = new CurlHttpClient("http://www.ubicg.ynu.ac.jp/dcase_viewer/cgi/api.cgi");
-    Json ret = Json.parse(client.post(json.toString()));
+    String s = "{\"result\":{\"Tree\":{\"TopGoalId\":1,\"NodeList\":[{\"ThisNodeId\":1,\"Description\":\"サービスは正常に終了する\",\"Children\":[2],\"NodeType\":\"Goal\"},{\"ThisNodeId\":2,\"Description\":\"各システム構成について確認する\",\"Children\":[3,5,7],\"NodeType\":\"Strategy\"},{\"ThisNodeId\":3,\"Description\":\"ロードバランサーが正常に終了する\",\"Children\":[4],\"NodeType\":\"Goal\"},{\"ThisNodeId\":4,\"Description\":\"/etc/init.d/httpd stop\",\"Children\":[],\"NodeType\":\"Solution\"},{\"ThisNodeId\":5,\"Description\":\"ウェブサーバが正常に終了する\",\"Children\":[6],\"NodeType\":\"Goal\"},{\"ThisNodeId\":6,\"Description\":\"/etc/init.d/httpd stop\",\"Children\":[],\"NodeType\":\"Solution\"},{\"ThisNodeId\":7,\"Description\":\"データストレージが正常に終了する\",\"Children\":[8],\"NodeType\":\"Goal\"},{\"ThisNodeId\":8,\"Description\":\"service nfs stop\nservice nfslock stop\nservice portmap stop\",\"Children\":[],\"NodeType\":\"Solution\"}]}}}";
+    ext = "dscript";
+//    Json ret = Json.parse(client.post(json.toString()));
+
+    Json ret = Json.parse(s);
     Exporter export = null;
     if (ext == "dot") {
         export = new DotExporter();
@@ -252,3 +264,5 @@ void main () {
 }
 
 main();
+
+
